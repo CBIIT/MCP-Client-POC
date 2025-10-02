@@ -33,9 +33,17 @@ api.get("/session", async (req, res) => {
   const { session } = req;
   session.touch();
   session.expires = session.cookie.expires;
-  if (session?.user?.id) {
+
+  // Auto-login hardcoded dev user for POC (skip OAuth)
+  if (!session?.user?.id) {
+    session.user = await User.findOne({
+      where: { email: "dev@localhost" },
+      include: [{ model: Role }],
+    });
+  } else {
     session.user = await User.findByPk(session.user.id, { include: [{ model: Role }] });
   }
+
   res.json({ user: session.user, expires: session.expires });
 });
 

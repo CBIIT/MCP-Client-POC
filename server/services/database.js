@@ -39,5 +39,21 @@ const syncOptions = DB_DIALECT === "sqlite" ? { force: false } : { alter: true }
 await db.sync(syncOptions);
 await seedDatabase(models);
 
-export const { User, Role, Provider, Model, Usage } = models;
+// Auto-create hardcoded dev user for POC (skip OAuth)
+const { User } = models;
+await User.findOrCreate({
+  where: { email: "dev@localhost" },
+  defaults: {
+    email: "dev@localhost",
+    firstName: "Dev",
+    lastName: "User",
+    status: "active",
+    roleId: 1, // Admin role
+    limit: null, // Unlimited
+    remaining: null,
+  },
+});
+
+export const { User: ExportedUser, Role, Provider, Model, Usage } = models;
+export { ExportedUser as User };
 export default db;

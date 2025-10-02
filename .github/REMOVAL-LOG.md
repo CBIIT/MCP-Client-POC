@@ -1,12 +1,12 @@
 # POC Simplification - Removal Log
 
 **Date:** 2025-10-02
-**Phase:** Safe Removals + Route Simplification + UI Fixes + Asset Cleanup
-**Last Updated:** 2025-10-02 (Removed unused components, templates, images, and routes)
+**Phase:** Safe Removals + Route Simplification + UI Fixes + Asset Cleanup + UI Simplification + Database Migration
+**Last Updated:** 2025-10-02 (Migrated to SQLite for complete isolation)
 
 ## Overview
 
-This document tracks what was removed from the forked NCI Research Optimizer codebase to create a minimal MCP Client POC. We removed unused pages and routes that the chat interface doesn't depend on, moved Chat to the root URL, fixed UI issues, and cleaned up unused assets.
+This document tracks what was removed from the forked NCI Research Optimizer codebase to create a minimal MCP Client POC. We removed unused pages and routes that the chat interface doesn't depend on, moved Chat to the root URL, fixed UI issues, cleaned up unused assets, and simplified the user interface.
 
 ## ✅ What Was Removed
 
@@ -182,6 +182,62 @@ const routes = [
 - ✅ Direct access on page load
 - ✅ Still works with existing router/auth system
 
+### UI Simplification
+
+#### Modified Files:
+```
+✅ client/components/header.js             # Removed search bar
+✅ client/components/privacy-notice.js     # Disabled modal on login
+✅ client/pages/tools/chat/index.js        # Removed "New Chat" dropdown, simplified to direct link
+```
+
+**Changes Made:**
+
+**1. Header Search Bar (Removed):**
+```javascript
+// BEFORE: Header had Google search form
+<form action="https://www.google.com/search" target="_blank">
+  <input name="q" class="form-control" />
+  <button class="btn btn-primary">Search</button>
+</form>
+
+// AFTER: Just logo, centered
+<a href="/" title="Home">
+  <object data="assets/images/logo.svg" alt="Logo" />
+</a>
+```
+
+**2. Privacy Notice Modal (Disabled):**
+```javascript
+// BEFORE: Shows modal on first login if cookie not set
+return session.user ? !getCookie("privacyNoticeAccepted") : false;
+
+// AFTER: Always hidden
+return false; // Never show modal
+```
+
+**3. New Chat Dropdown (Simplified):**
+```javascript
+// BEFORE: Dropdown with "Standard Chat" and "FedPulse" options
+<ClassToggle class="dropdown">
+  <ul class="dropdown-menu">
+    <li>Standard Chat</li>
+    <li>FedPulse</li>
+  </ul>
+</ClassToggle>
+
+// AFTER: Direct link to new chat
+<a href="/tools/chat">
+  <span>New Chat</span>
+</a>
+```
+
+**Why These Changes:**
+- ✅ Search bar not needed (chat has search tool)
+- ✅ Privacy modal interrupts POC usage
+- ✅ Simplified chat creation (no FedPulse variant needed)
+- ✅ Cleaner, more focused UI
+
 ### UI Fixes (CSS)
 
 #### Modified Files:
@@ -265,49 +321,110 @@ User dropdown menu (with Logout button) was appearing behind the chat titlebar d
 ```
 
 ### 2. Authentication System
-**Status:** OAuth still required (not simplified)
+**Status:** ✅ COMPLETE - Hardcoded Dev User (OAuth Disabled)
 
-**Current State:**
-- Full OAuth OIDC flow in `server/services/routes/auth.js`
-- Chat requires user from `/api/session`
-- User email needed for IndexedDB scoping
+**Before:**
+- Used external NIH OAuth server (`https://stsstg.nih.gov`)
+- Required network connection to authenticate
+- Could conflict with existing application
+- Required login flow and credentials
 
-**Future Work:**
-- Replace OAuth with hardcoded dev user
-- Auto-create session on first visit
-- Remove `requireRole()` checks
+**After:**
+- OAuth completely disabled
+- Hardcoded dev user auto-created on server startup
+- Auto-login on every session request
+- Zero authentication flow
 
-**Files to Modify Later:**
+**Changes Made:**
+
+**1. `server/services/database.js` (lines 42-55):**
+```javascript
+// Auto-create hardcoded dev user for POC (skip OAuth)
+await User.findOrCreate({
+  where: { email: "dev@localhost" },
+  defaults: {
+    email: "dev@localhost",
+    firstName: "Dev",
+    lastName: "User",
+    status: "active",
+    roleId: 1,        // Admin role
+    limit: null,      // Unlimited usage
+    remaining: null,
+  },
+});
 ```
-⚠️ server/services/routes/auth.js        # Simplify /login and /session
-⚠️ server/services/routes/model.js       # Remove requireRole() check
-⚠️ server/services/middleware.js         # Simplify auth middleware
+
+**2. `server/services/routes/auth.js` (lines 37-43):**
+```javascript
+// Auto-login hardcoded dev user for POC (skip OAuth)
+if (!session?.user?.id) {
+  session.user = await User.findOne({
+    where: { email: "dev@localhost" },
+    include: [{ model: Role }],
+  });
+}
 ```
+
+**3. `server/.env`:**
+```bash
+# All OAuth variables commented out (disabled)
+```
+
+**User Experience:**
+1. Server starts → Dev user auto-created in SQLite
+2. Visit app → Instant access (no login page!)
+3. Chat shows: "Welcome, Dev"
+4. Admin role → All features enabled
+
+**Benefits:**
+- ✅ No OAuth flow at all
+- ✅ No login page
+- ✅ No external services
+- ✅ No network calls
+- ✅ Instant access to chat
+- ✅ Perfect for single-developer POC
+- ✅ Complete isolation from existing app
 
 ### 3. Database Simplification
-**Status:** PostgreSQL still required (not simplified)
+**Status:** ✅ COMPLETE - Migrated to SQLite
 
-**Current State:**
-- Uses PostgreSQL via Docker
-- 5 tables: Users, Roles, Providers, Models, Usage
-- User authentication depends on User table
+**Before:**
+- Used PostgreSQL via Docker
+- Required server process running on port 5432
+- Network connection even for local development
+- Could conflict with existing application
 
-**Future Work:**
-- Switch to SQLite (no Docker needed)
-- Simplify to just Users & Models tables
-- Remove Roles & Usage tracking (optional)
+**After:**
+- Uses SQLite (embedded database)
+- No server process needed
+- Direct file access: `server/database.sqlite`
+- Zero Docker dependency
+- Complete isolation from existing application
 
-**Change in `.env`:**
+**Changes Made in `server/.env`:**
 ```bash
 # BEFORE:
 PGHOST=localhost
 PGPORT=5432
-...
+PGDATABASE=postgres
+PGUSER=postgres
+PGPASSWORD=postgres
 
 # AFTER:
 DB_DIALECT=sqlite
-DB_STORAGE=../database.sqlite
+DB_STORAGE=./database.sqlite
+
+# (PostgreSQL vars commented out)
 ```
+
+**Benefits:**
+- ✅ No PostgreSQL server required
+- ✅ No Docker required
+- ✅ No port conflicts possible
+- ✅ File-based storage (can delete to reset)
+- ✅ Simpler setup for POC
+- ✅ Same 5 tables (Users, Roles, Providers, Models, Usage)
+- ✅ Zero code changes needed (database.js already supports SQLite)
 
 ---
 
@@ -318,20 +435,22 @@ DB_STORAGE=../database.sqlite
 - ✅ Disabled admin API routes
 - ✅ No breaking changes to chat functionality
 - ✅ System still runs as before
+- ✅ **Migrated to SQLite** - No PostgreSQL/Docker needed
+- ✅ **Switched to Local OAuth** - No external authentication service
 
 ### What Remains
 - ⚠️ Router/navigation system (5 files)
-- ⚠️ OAuth authentication (full flow)
-- ⚠️ PostgreSQL database (Docker required)
-- ⚠️ User management backend (tables still exist)
+- ⚠️ User management backend (tables still exist but unused)
+- ⚠️ Optional search APIs (not configured)
 
 ### Next Phase Complexity
 **Low Complexity:**
-- Switch SQLite (change 2 env vars)
+- ~~Switch SQLite (change 2 env vars)~~ ✅ COMPLETE
+- ~~Simplify authentication (change OAuth to local)~~ ✅ COMPLETE
 
 **Medium Complexity:**
-- Simplify authentication (2-3 files, ~50 lines)
 - Remove router (create standalone.js wrapper)
+- Clean up unused optional APIs
 
 **High Complexity:**
 - Remove all unused server routes/middleware
