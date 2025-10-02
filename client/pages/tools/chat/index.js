@@ -137,48 +137,22 @@ export default function Page() {
                 </button>
               <//>
               <${Show} when=${() => toggles().conversations}>
-                <div class="btn btn-sm m-0 p-0 border-0">ARTI Chat</div>
+                <div class="btn btn-sm m-0 p-0 border-0">Chat History</div>
               <//>
             </div>
-            <div
+            <a
+              href="/tools/chat"
+              target="_self"
               class="d-flex align-items-center gap-2 link-primary text-decoration-none mb-3 fw-semibold"
               title="New Chat"
             >
-              <a
-                href="/tools/chat"
-                target="_self"
-                class="btn btn-sm btn-primary d-flex-center rounded-5 wh-2 p-0"
-              >
+              <span class="btn btn-sm btn-primary d-flex-center rounded-5 wh-2 p-0">
                 <img src="assets/images/icon-plus.svg" alt="New Chat" width="16" />
-              </a>
+              </span>
               <${Show} when=${() => toggles().conversations}>
-                <${ClassToggle} class="dropdown d-flex-center" activeClass="show" event="hover">
-                  <a toggle href="/tools/chat" target="_self" class="btn btn-sm p-0 dropdown-toggle"
-                    >New Chat</a
-                  >
-                  <ul class="dropdown-menu top-100 start-0">
-                    <li>
-                      <a
-                        title="General chat"
-                        class="dropdown-item text-decoration-none small fw-semibold"
-                        href="/tools/chat"
-                        target="_self"
-                        >Standard Chat</a
-                      >
-                    </li>
-                    <li>
-                      <a
-                        title="Search U.S. federal websites for policies, guidelines, executive orders, and other official content."
-                        class="dropdown-item text-decoration-none small fw-semibold"
-                        href="/tools/chat?fedpulse=1"
-                        target="_self"
-                        >FedPulse</a
-                      >
-                    </li>
-                  </ul>
-                <//>
+                <span>New Chat</span>
               <//>
-            </div>
+            </a>
 
             <${Show} when=${() => toggles().conversations}>
               <small class="mb-2 fw-normal text-muted fs-08"> Recent </small>

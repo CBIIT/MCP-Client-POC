@@ -1,13 +1,6 @@
 import html from "solid-js/html";
 
 export default function Header() {
-  function handleSubmit(event) {
-    event.preventDefault();
-    const form = event.target;
-    const q = `${form.q.value} site:${window.location.hostname}`;
-    const url = form.action + "?" + new URLSearchParams({ q });
-    open(url, form.target);
-  }
   return html`
     <header class="flex-grow-0">
       <div class="bg-light">
@@ -20,21 +13,10 @@ export default function Header() {
           </div>
         </div>
       </div>
-      <div
-        class="container d-none d-lg-flex flex-wrap justify-content-between align-items-center py-3"
-      >
+      <div class="container d-none d-lg-flex flex-wrap justify-content-between align-items-center py-3">
         <a href="/" title="Home" class="d-inline-block">
           <object height="50" data="assets/images/logo.svg" alt="Logo" class="pe-none" />
         </a>
-        <form
-          class="input-group w-auto"
-          action="https://www.google.com/search"
-          target="_blank"
-          onSubmit=${handleSubmit}
-        >
-          <input name="q" class="form-control" aria-label="Search" />
-          <button class="btn btn-primary">Search</button>
-        </form>
       </div>
     </header>
   `;

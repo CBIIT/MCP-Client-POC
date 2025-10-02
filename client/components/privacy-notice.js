@@ -6,9 +6,9 @@ import { getCookie, setCookie } from "../utils/utils.js";
 import Modal from "./modal.js";
 
 export default function PrivacyNotice() {
+  // DISABLED: Privacy notice modal always hidden for POC
   const [open, { mutate: setOpen }] = createResource(async () => {
-    const session = await fetch("/api/session").then((res) => res.json());
-    return session.user ? !getCookie("privacyNoticeAccepted") : false;
+    return false; // Always return false - never show modal
   });
   const onSubmit = () => setCookie("privacyNoticeAccepted", "true");
   const title = html`
