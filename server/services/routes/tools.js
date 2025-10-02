@@ -4,8 +4,8 @@ import { QueryTypes } from "sequelize";
 import db from "../database.js";
 import { sendFeedback } from "../email.js";
 import { proxyMiddleware, requireRole } from "../middleware.js";
-import { textract } from "../textract.js";
-import { getLanguages, translate } from "../translate.js";
+// REMOVED: import { textract } from "../textract.js"; // Not used by chat
+// REMOVED: import { getLanguages, translate } from "../translate.js"; // Translate tool deleted
 import { search } from "../utils.js";
 
 const { VERSION } = process.env;
@@ -20,24 +20,30 @@ api.get("/status", async (req, res) => {
   });
 });
 
+// Used by chat's search tool
 api.get("/search", requireRole(), async (req, res) => {
   res.json(await search(req.query));
 });
 
+// Used by chat's browse tool
 api.all("/browse/*url", requireRole(), proxyMiddleware);
 
-api.post("/textract", requireRole(), async (req, res) => {
-  res.json(await textract(req.body));
-});
+// REMOVED: /api/textract - Not used by chat
+// api.post("/textract", requireRole(), async (req, res) => {
+//   res.json(await textract(req.body));
+// });
 
-api.post("/translate", requireRole(), async (req, res) => {
-  res.json(await translate(req.body));
-});
+// REMOVED: /api/translate - Translate tool deleted
+// api.post("/translate", requireRole(), async (req, res) => {
+//   res.json(await translate(req.body));
+// });
 
-api.get("/translate/languages", requireRole(), async (req, res) => {
-  res.json(await getLanguages());
-});
+// REMOVED: /api/translate/languages - Translate tool deleted
+// api.get("/translate/languages", requireRole(), async (req, res) => {
+//   res.json(await getLanguages());
+// });
 
+// Used by chat's feedback button
 api.post("/feedback", requireRole(), async (req, res) => {
   const { feedback, context } = req.body;
   const from = req.session?.user?.email;

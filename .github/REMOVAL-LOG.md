@@ -1,12 +1,12 @@
 # POC Simplification - Removal Log
 
 **Date:** 2025-10-02
-**Phase:** Safe Removals + Route Simplification + UI Fixes
-**Last Updated:** 2025-10-02 (Added dropdown menu z-index fix)
+**Phase:** Safe Removals + Route Simplification + UI Fixes + Asset Cleanup
+**Last Updated:** 2025-10-02 (Removed unused components, templates, images, and routes)
 
 ## Overview
 
-This document tracks what was removed from the forked NCI Research Optimizer codebase to create a minimal MCP Client POC. We removed unused pages and routes that the chat interface doesn't depend on, moved Chat to the root URL, and fixed UI issues.
+This document tracks what was removed from the forked NCI Research Optimizer codebase to create a minimal MCP Client POC. We removed unused pages and routes that the chat interface doesn't depend on, moved Chat to the root URL, fixed UI issues, and cleaned up unused assets.
 
 ## ✅ What Was Removed
 
@@ -29,21 +29,84 @@ This document tracks what was removed from the forked NCI Research Optimizer cod
    └── template files
 ```
 
-**Total Removed:** ~10 files, ~2000+ lines of code
+**Total Removed:** ~10 page files, ~2000+ lines of code
 
 #### Why Safe to Remove:
 - ✅ Chat interface (`client/pages/tools/chat/`) doesn't import any of these
 - ✅ No shared dependencies with chat functionality
 - ✅ These were separate tools/pages accessed via router
 
+### Unused Components (Cleanup)
+
+#### Removed Files:
+```
+❌ client/components/table.js              # Only used by deleted user management pages
+❌ client/components/file-input.js         # Not used anywhere
+```
+
+**Why Safe to Remove:**
+- ✅ `table.js` only imported by deleted user management pages
+- ✅ `file-input.js` had zero imports in codebase
+- ✅ Chat uses inline file input, not this component
+
+### Unused Templates (Cleanup)
+
+#### Removed Files:
+```
+❌ client/templates/lay-person-abstract/   # Consent crafter templates (6 files)
+❌ client/templates/nih-cc/                # Consent crafter templates (5 files)
+❌ client/templates/govinfo-api.md         # Government search documentation
+❌ client/templates/semantic-search.html   # Semantic search demo template
+```
+
+**Total Removed:** ~11 template files
+
+**Why Safe to Remove:**
+- ✅ All consent templates were for deleted ConsentCrafter tool
+- ✅ govinfo-api.md documented deleted search features
+- ✅ semantic-search.html was for deleted semantic search page
+
+### Unused Assets (Cleanup)
+
+#### Removed Files:
+```
+❌ client/assets/images/icon-agents.svg
+❌ client/assets/images/icon-assistant.svg
+❌ client/assets/images/icon-books.svg
+❌ client/assets/images/icon-circle-info.svg
+❌ client/assets/images/icon-dot-gov.svg
+❌ client/assets/images/icon-download.svg
+❌ client/assets/images/icon-expand.svg
+❌ client/assets/images/icon-history.svg
+❌ client/assets/images/icon-https.svg
+❌ client/assets/images/icon-pen.svg
+❌ client/assets/images/icon-radar.svg
+❌ client/assets/images/icon-star.svg
+❌ client/assets/images/icon-translate.svg
+❌ client/assets/images/users/             # User management icons
+```
+
+**Total Removed:** ~14 SVG files + users folder
+
+**Images Still In Use:**
+- ✅ icon-plus.svg, icon-paperclip.svg, icon-bars.svg, icon-upload.svg (chat UI)
+- ✅ logo.svg (header/nav)
+- ✅ icon-flag.svg (header)
+- ✅ footer/*.svg (footer social links)
+
+**Why Safe to Remove:**
+- ✅ Verified no imports in remaining codebase
+- ✅ Icons were for deleted tools/pages
+
 ### Server Routes (Backend)
 
 #### Modified Files:
 ```
 ⚠️ server/services/api.js                 # Commented out admin routes
+⚠️ server/services/routes/tools.js        # Removed translate and textract endpoints
 ```
 
-**Changes Made:**
+**Changes Made in api.js:**
 ```javascript
 // BEFORE:
 import adminRoutes from "./routes/admin.js";
@@ -54,10 +117,26 @@ api.use(adminRoutes);
 // api.use(adminRoutes); // REMOVED: Admin panel not needed for POC
 ```
 
+**Changes Made in tools.js:**
+```javascript
+// REMOVED endpoints:
+// POST /api/translate          - AWS Translate (translate tool deleted)
+// GET /api/translate/languages - Language list (translate tool deleted)
+// POST /api/textract          - Document extraction (not used by chat)
+
+// KEPT endpoints:
+✅ GET /api/search             - Used by chat's search tool
+✅ ALL /api/browse/*url        - Used by chat's browse tool
+✅ POST /api/feedback          - Used by chat's feedback button
+✅ GET /api/status             - Health check endpoint
+```
+
 #### Why Safe to Remove:
 - ✅ Chat doesn't call any `/api/admin/*` endpoints
 - ✅ Admin routes only used by user management pages (which we removed)
-- ✅ File still exists (`server/services/routes/admin.js`) but not loaded
+- ✅ Translate endpoints only used by deleted translate tool
+- ✅ Textract not used by chat (chat uses client-side parsing)
+- ✅ Files still exist but routes commented out
 
 ### Route Configuration (Frontend)
 
