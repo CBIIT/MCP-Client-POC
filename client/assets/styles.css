@@ -1160,3 +1160,8 @@ dialog .close-btn {
   --_hover-bg: rgba(var(--bs-danger-rgb, 220, 53, 69), 0.08);
   --_focus-ring: 0 0 0 0.2rem rgba(var(--bs-danger-rgb, 220, 53, 69), 0.25);
 }
+
+/* Ensure dropdown menu appears above chat titlebar */
+.bg-info.position-absolute.w-100.z-3.shadow {
+  z-index: 6 !important; /* Higher than chat-titlebar's z-index: 5 */
+}
