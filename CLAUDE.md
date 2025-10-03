@@ -37,36 +37,73 @@ The original project has an exceptionally well-designed system for managing conv
    - Token estimation
    - Multi-provider AI abstraction
 
-## Game Plan
+## Current POC Status
 
-### Phase 1: Clean Up & Document (Current)
+### ✅ **Phase 1: COMPLETE - Simplified to Minimal POC**
+
+**What Was Accomplished:**
+- ✅ Removed unused pages/components (~10 files, ~2000 lines)
+- ✅ Migrated PostgreSQL → SQLite (local file database)
+- ✅ Disabled OAuth → Hardcoded dev user (instant login)
+- ✅ Chat at root URL (no navigation needed)
+- ✅ Cleaned up unused assets/templates
+- ✅ Simplified UI (removed modals, dropdowns)
+- ✅ Complete isolation from original application
+
+**Current Architecture:**
+- **Database:** SQLite (`server/database.sqlite`)
+- **Auth:** Hardcoded `dev@localhost` user (no login flow)
+- **AI:** AWS Bedrock (Claude models)
+- **Frontend:** SolidJS buildless client
+- **Backend:** Express.js with Sequelize
+- **Storage:** Client-side IndexedDB for conversations
+
+**How to Run:**
+```bash
+cd server
+npm install
+npm start
+# Visit: https://localhost:443/
+# Instant access - no login needed!
+```
+
+**Dependencies:**
+- ✅ Required: Node.js, AWS Bedrock credentials
+- ❌ Not needed: Docker, PostgreSQL, OAuth service
+
+---
+
+## Game Plan (Original - Partially Complete)
+
+### Phase 1: Clean Up & Document
 - [x] Copy CLAUDE.md documentation from original repo
 - [x] Document game plan in root CLAUDE.md
-- [ ] Review all existing code and understand dependencies
-- [ ] Create dependency map for context handling components
-- [ ] Test current system to ensure it works
+- [x] Review all existing code and understand dependencies
+- [x] Create dependency map for context handling components
+- [x] Test current system to ensure it works
+- [x] **Simplify to minimal POC** (SQLite + hardcoded auth)
 
 ### Phase 2: Extract Core Context System
 **Goal:** Isolate the context handling components from the research platform specifics
 
-**Keep:**
-- `client/models/database.js` - IndexedDB wrapper
-- `client/models/models.js` - Data models (Project, Conversation, Message, Resource)
-- `client/models/embedders.js` - Embedding system
-- `client/utils/hnsw.js` - Vector search implementation
-- `client/utils/tools.js` - Tool execution framework
-- `client/pages/tools/chat/hooks.js` - Message handling logic (adapt)
-- `client/pages/tools/chat/config.js` - System prompt structure (replace content)
-- `server/services/inference.js` - Context processing and caching
-- `server/services/database.js` - Backend models (adapt for new schema)
+**✅ Kept (Essential):**
+- `client/` - Chat UI and IndexedDB storage
+- `server/` - AI inference and API
+- Core context handling system intact
 
-**Remove/Replace:**
-- `infrastructure/` - AWS deployment (not needed for POC)
-- `.github/` - CI/CD workflows (will create new ones)
-- `packages/` - ESLint config (optional)
-- FedPulse-specific logic
-- Research-specific tools (translate, gov search)
-- NCI branding and UI components
+**❌ Removed/Disabled:**
+- ~10 unused pages (translate, semantic search, user management, etc.)
+- Admin routes (commented out)
+- External OAuth (using hardcoded user)
+- PostgreSQL (using SQLite)
+
+**⚠️ Can Remove (Not Needed for POC):**
+- `infrastructure/` - AWS CDK deployment (❌ not needed)
+- `postgres/` - PostgreSQL data folder (❌ not needed)
+- `docker-compose.yml` - Docker orchestration (❌ not needed)
+- `deploy.sh` - AWS deployment script (❌ not needed)
+- `.github/workflows/` - CI/CD (⚠️ optional)
+- `packages/` - ESLint config (⚠️ optional, but useful)
 
 ### Phase 3: Design MCP Client Schema
 **Goal:** Define data structures for MCP client use case

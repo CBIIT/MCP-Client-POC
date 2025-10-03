@@ -1,12 +1,24 @@
 # Infrastructure
 
+## ⚠️ **STATUS: NOT NEEDED FOR POC**
+
 ## Overview
 
 AWS CDK (Cloud Development Kit) infrastructure-as-code for deploying the Research Optimizer platform to AWS. Written in TypeScript, defines all cloud resources needed to run the application.
 
-**Purpose:** Automated deployment of containerized application to AWS ECS with supporting services.
+**Original Purpose:** Automated deployment of containerized application to AWS ECS with RDS PostgreSQL.
 
-**Note for MCP Client POC:** This infrastructure may not be needed for the POC phase. Consider simpler deployment options (Docker Compose, single EC2, etc.) before investing in full AWS CDK setup.
+**POC Status:** ❌ **NOT NEEDED** - This entire folder is not required for the MCP Client POC.
+
+**Why Not Needed:**
+- POC uses SQLite (not RDS PostgreSQL)
+- POC runs locally with `npm start` (not containerized)
+- No cloud deployment needed during development
+- AWS infrastructure is overkill for single-developer POC
+
+**Recommendation:**
+- **Delete or archive this folder** if you want to clean up the POC
+- **Keep for reference** if you might deploy to AWS later (but consider simpler options like Railway/Render/single EC2 first)
 
 ## Architecture
 

@@ -1,23 +1,47 @@
-# Packages
+# packages/
 
-## Overview
+## Purpose
+Shared packages and configuration used across multiple parts of the project.
 
-Shared packages used across the project. Currently contains only ESLint configuration for consistent code style across client and server.
+## High-Level Architecture
 
-## Directory Structure
+### Contents
+```
+packages/
+└── eslint-config/    # Shared ESLint configuration
+    ├── index.js      # Base JavaScript rules
+    ├── node.js       # Node.js specific rules
+    ├── solid.js      # SolidJS specific rules
+    └── package.json  # Package metadata
+```
 
-| Folder | Purpose |
-|--------|---------|
-| **eslint-config/** | Shared ESLint configuration package |
+## What This Is
+A **monorepo pattern** for shared configuration:
+- ESLint rules that both client and server import
+- Installed as local file dependency: `file:../packages/eslint-config`
+- Changes take effect immediately (no publishing needed)
 
-## ESLint Configuration
+## Benefits
 
-### Purpose
-Provides consistent JavaScript/ESM linting rules for both client and server codebases.
+### Code Quality
+- Consistent style across client and server
+- Catches common errors
+- Enforces best practices
+- Framework-specific rules (SolidJS reactivity, Node.js patterns)
 
-### Usage
+### Maintainability
+- Update rules in one place
+- Version control for configuration
+- Can add more shared packages easily
 
-In client or server `package.json`:
+### Developer Experience
+- Instant feedback in IDE
+- Auto-fix on save
+- Clear error messages
+
+## How It's Used
+
+### In client/package.json
 ```json
 {
   "devDependencies": {
@@ -26,60 +50,31 @@ In client or server `package.json`:
 }
 ```
 
-In `eslint.config.js`:
+### In client/eslint.config.js
 ```javascript
 import baseConfig from '@nci-webtools-ctri-research-optimizer/eslint-config';
-
-export default [
-  ...baseConfig,
-  // Additional project-specific rules
-];
+export default [...baseConfig, /* project-specific overrides */];
 ```
 
-### Configuration Files
+Same pattern in server.
 
-- `index.js` - Main ESLint configuration
-- `node.js` - Node.js specific rules
-- `solid.js` - SolidJS specific rules
+## Contribution to Project
+**Optional but valuable** - Improves code quality without affecting functionality:
+- Prevents bugs before they happen
+- Makes code more maintainable
+- Helps onboarding new developers
+- Enforces consistent patterns
 
-### Rules Included
+## POC Status
+⚠️ **OPTIONAL** - Nice to have, not required for POC to function
 
-- **ES6/ESM**: Modern JavaScript syntax support
-- **Node.js**: Server-side best practices
-- **SolidJS**: Reactive framework patterns
-- **Code Style**: Consistent formatting rules
-
-## Future Additions
-
-This directory could contain:
-- Shared TypeScript configurations
+## Could Add Later
+This packages/ folder could contain:
+- Shared TypeScript config
 - Shared utility libraries
 - Common constants/types
+- Build tool configurations
 - Testing utilities
-- Build tools configuration
 
-## Why Shared Packages?
-
-1. **Consistency**: Same linting rules across all code
-2. **Maintainability**: Update rules in one place
-3. **Reusability**: Import in multiple projects
-4. **Version Control**: Track changes to configuration
-
-## Development
-
-To modify ESLint configuration:
-
-```bash
-cd packages/eslint-config
-# Edit configuration files
-npm version patch  # Increment version
-cd ../../client && npm install  # Update in client
-cd ../server && npm install     # Update in server
-```
-
-## Best Practices
-
-1. **Keep It Minimal**: Only shared configuration here
-2. **Version Properly**: Use semantic versioning
-3. **Document Changes**: Update this file when adding packages
-4. **Test Changes**: Verify in both client and server before committing
+## Note
+This is a **local package**, not published to npm. It's part of the monorepo and installed via file path reference.
