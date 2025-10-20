@@ -2,6 +2,7 @@ import { Model, Provider } from "./database.js";
 import bedrock from "./providers/bedrock.js";
 import gemini from "./providers/gemini.js";
 import mock from "./providers/mock.js";
+import { mcpManager } from "./mcp/MCPConnectionManager.js";
 
 export async function getModelProvider(value) {
   const providers = { bedrock, gemini, mock };
@@ -122,6 +123,20 @@ export async function runModel({
 }) {
   if (!model || !messages || messages?.length === 0) {
     return null;
+  }
+
+  // Get MCP tools and merge with provided tools
+  try {
+    const mcpTools = mcpManager.formatToolsForBedrock();
+    if (mcpTools.length > 0) {
+      console.log(`[MCP] Adding ${mcpTools.length} tools from MCP servers`);
+      // Merge MCP tools with client tools, MCP tools come first
+      tools = [...mcpTools, ...tools];
+      console.log(`[MCP] Total tools available: ${tools.length}`);
+    }
+  } catch (error) {
+    console.error('[MCP] Failed to get MCP tools:', error);
+    // Continue without MCP tools
   }
 
   // process messages to ensure they are in the correct format

@@ -24,6 +24,7 @@
     "@aws-sdk/client-textract": "^3.883.0",
     "@aws-sdk/client-translate": "^3.883.0",
     "@google/genai": "^1.18.0",
+    "@modelcontextprotocol/sdk": "^1.19.1",
     "connect-session-sequelize": "^8.0.2",
     "express": "^5.1.0",
     "express-session": "^1.18.2",

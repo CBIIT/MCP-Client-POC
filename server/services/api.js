@@ -5,6 +5,7 @@ import { logErrors, logRequests } from "./middleware.js";
 import authRoutes from "./routes/auth.js";
 import modelRoutes from "./routes/model.js";
 import toolRoutes from "./routes/tools.js";
+import mcpRoutes from "./routes/mcp.js";
 
 const api = Router();
 
@@ -14,6 +15,7 @@ api.use(logRequests());
 api.use(authRoutes);
 api.use(modelRoutes);
 api.use(toolRoutes);
+api.use("/mcp", mcpRoutes);
 api.use(logErrors());
 
 export default api;

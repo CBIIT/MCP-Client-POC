@@ -12,6 +12,7 @@ import logger from "./services/logger.js";
 import { startScheduler } from "./services/scheduler.js";
 import { createCertificate } from "./services/utils.js";
 import { nocache } from "./services/middleware.js";
+import { initializeMCP } from "./services/routes/mcp.js";
 
 const { PORT = 8080, SESSION_MAX_AGE = 24 * 60 * 60 * 1000 } = process.env;
 
@@ -19,6 +20,12 @@ const { PORT = 8080, SESSION_MAX_AGE = 24 * 60 * 60 * 1000 } = process.env;
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const app = createApp(process.env);
   const _scheduler = startScheduler();
+
+  // Initialize MCP connections
+  initializeMCP().catch(err => {
+    logger.error('Failed to initialize MCP:', err);
+  });
+
   createServer(app, process.env).listen(PORT, () =>
     logger.info(`Server is running on port ${PORT}`)
   );

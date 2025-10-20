@@ -9,13 +9,43 @@ import { jsonToXml } from "./xml.js";
  */
 export async function runTool(toolUse, tools = { search, browse, code, editor, think }) {
   let { toolUseId, name, input } = toolUse;
+
+  // Check if this is a local tool first
+  if (tools?.[name]) {
+    try {
+      const results = await tools[name](input);
+      const content = [{ json: { results } }];
+      return { toolUseId, content };
+    } catch (error) {
+      console.error("Tool error:", error);
+      const errorText = error.stack || error.message || String(error);
+      const content = [{ text: `Error running ${name}: ${errorText}` }];
+      return { toolUseId, content };
+    }
+  }
+
+  // If not a local tool, try executing it as an MCP tool on the server
   try {
-    const results = await tools?.[name]?.(input);
-    const content = [{ json: { results } }];
-    return { toolUseId, content };
+    console.log(`[MCP] Executing tool ${name} on server`);
+    const response = await fetch("/api/mcp/execute", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ toolUse })
+    });
+
+    if (!response.ok) {
+      // If 404, it's not an MCP tool either
+      if (response.status === 404) {
+        throw new Error(`Unknown tool: ${name}`);
+      }
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
   } catch (error) {
-    console.error("Tool error:", error);
-    const errorText = error.stack || error.message || String(error);
+    console.error("MCP tool error:", error);
+    const errorText = error.message || String(error);
     const content = [{ text: `Error running ${name}: ${errorText}` }];
     return { toolUseId, content };
   }
